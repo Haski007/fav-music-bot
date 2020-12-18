@@ -19,24 +19,24 @@ const missingClientSecretsMessage = `
 Please configure OAuth 2.0
 `
 
-// getClient uses a Context and Config to retrieve a Token
+// GetClient uses a Context and Config to retrieve a Token
 // then generate a Client. It returns the generated Client.
-func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
-	cacheFile, err := tokenCacheFile()
+func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
+	cacheFile, err := TokenCacheFile()
 	if err != nil {
 		logrus.Fatalf("Unable to get path to cached credential file. %v", err)
 	}
-	tok, err := tokenFromFile(cacheFile)
+	tok, err := TokenFromFile(cacheFile)
 	if err != nil {
-		tok = getTokenFromWeb(config)
-		saveToken(cacheFile, tok)
+		tok = GetTokenFromWeb(config)
+		SaveToken(cacheFile, tok)
 	}
 	return config.Client(ctx, tok)
 }
 
-// getTokenFromWeb uses Config to request a Token.
+// GetTokenFromWeb uses Config to request a Token.
 // It returns the retrieved Token.
-func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
+func GetTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Go to the following link in your browser then type the "+
 		"authorization code: \n%v\n", authURL)
@@ -53,9 +53,9 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	return tok
 }
 
-// tokenCacheFile generates credential file path/filename.
+// TokenCacheFile generates credential file path/filename.
 // It returns the generated credential path/filename.
-func tokenCacheFile() (string, error) {
+func TokenCacheFile() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return "", err
@@ -66,9 +66,9 @@ func tokenCacheFile() (string, error) {
 		url.QueryEscape("youtube-go-quickstart.json")), err
 }
 
-// tokenFromFile retrieves a Token from a given file path.
+// TokenFromFile retrieves a Token from a given file path.
 // It returns the retrieved Token and any read error encountered.
-func tokenFromFile(file string) (*oauth2.Token, error) {
+func TokenFromFile(file string) (*oauth2.Token, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -79,9 +79,9 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 	return t, err
 }
 
-// saveToken uses a file path to create a file and store the
+// SaveToken uses a file path to create a file and store the
 // token in it.
-func saveToken(file string, token *oauth2.Token) {
+func SaveToken(file string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", file)
 	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -91,7 +91,7 @@ func saveToken(file string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-func handleError(err error, message string) {
+func HandleError(err error, message string) {
 	if message == "" {
 		message = "Error making API call"
 	}
@@ -100,11 +100,11 @@ func handleError(err error, message string) {
 	}
 }
 
-func channelsListByUsername(service *youtube.Service, part string, forUsername string) {
+func ChannelsListByUsername(service *youtube.Service, part string, forUsername string) {
 	call := service.Channels.List([]string{part})
 	call = call.ForUsername(forUsername)
 	response, err := call.Do()
-	handleError(err, "")
+	HandleError(err, "")
 	fmt.Println(fmt.Sprintf("This channel's ID is %s. Its title is '%s', "+
 		"and it has %d views.",
 		response.Items[0].Id,
