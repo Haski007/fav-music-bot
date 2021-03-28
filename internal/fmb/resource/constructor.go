@@ -3,15 +3,15 @@ package resource
 import (
 	"github.com/Haski007/fav-music-bot/internal/fmb/config"
 	"github.com/Haski007/fav-music-bot/internal/fmb/persistance/repository/mongodb"
-	"github.com/caarlos0/env"
 	"github.com/sirupsen/logrus"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type FMBService struct {
-	Bot            *tgbotapi.BotAPI
-	Cfg            *config.Bot
+	Bot       *tgbotapi.BotAPI
+	CreatorID int64
+
 	ChatRepository *mongodb.ChatRepository
 }
 
@@ -20,21 +20,15 @@ func NewFMBService() (*FMBService, error) {
 
 	bot := &FMBService{}
 
-	/*
-	** ---> Bot configs
-	 */
-	bot.Cfg = &config.Bot{}
-	if err := env.Parse(bot.Cfg); err != nil {
-		logrus.Fatalf("[env Parse] Bot config err: %s", err)
-	}
+	var cfg config.Config
+	cfg.Parse(config.ConfigFile)
 
-	/*
-	** ---> mongo Collection
-	 */
+	bot.CreatorID = cfg.Bot.CreatorID
+
 	bot.ChatRepository = &mongodb.ChatRepository{}
-	bot.ChatRepository.InitChatsConn()
+	bot.ChatRepository.InitChatsConn(cfg.MongoDB)
 
-	bot.Bot, err = tgbotapi.NewBotAPI(bot.Cfg.GetToken().String())
+	bot.Bot, err = tgbotapi.NewBotAPI(cfg.Bot.GetToken().String())
 	if err != nil {
 		return nil, err
 	}

@@ -18,4 +18,4 @@ build/*
 
 # Secrets
 *.pem
-envs
+*.env.json

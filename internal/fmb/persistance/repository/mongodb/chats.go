@@ -1,49 +1,53 @@
 package mongodb
 
 import (
+	"crypto/tls"
+	"net"
+
 	"github.com/Haski007/fav-music-bot/internal/fmb/config"
 	"github.com/Haski007/fav-music-bot/internal/fmb/persistance/model"
 	"github.com/Haski007/fav-music-bot/internal/fmb/persistance/repository"
-	"github.com/caarlos0/env"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	collName = "chats"
-)
-
 var session *mgo.Session
-var cfg config.MongoCfg
 
 type ChatRepository struct {
-	coll *mgo.Collection
+	ChatsColl *mgo.Collection
 }
 
-func (r *ChatRepository) InitChatsConn() {
-	if err := env.Parse(&cfg); err != nil {
-		logrus.Fatalf("[env Parse] MongoCfg err: %s", err)
+func (r *ChatRepository) InitChatsConn(cfg config.Mongo) {
+
+	dialInfo := mgo.DialInfo{
+		Addrs:    cfg.Addrs,
+		Username: cfg.UserName,
+		Password: cfg.Password,
+	}
+	tlsConfig := &tls.Config{}
+	dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+		conn, err := tls.Dial("tcp", addr.String(), tlsConfig) // add TLS config
+		return conn, err
 	}
 
-	cfg.Addr = "mongodb://" + cfg.Username + ":" + cfg.Password + "@" + cfg.HostName + ":" + cfg.Port
-
-	session, err := mgo.Dial(cfg.Addr)
+	var err error
+	session, err = mgo.DialWithInfo(&dialInfo)
 	if err != nil {
-		logrus.Fatalf("[mgo Dial] addr: %s | err: %s", cfg.Addr, err)
+		logrus.Fatalf("[mgo DialWithInfo] dialInfo: %+v | err: %s", dialInfo, err)
 	}
 
 	if err = session.Ping(); err != nil {
-		logrus.Fatalf("[mgo Ping] addr: %s | err: %s", cfg.Addr, err)
+		logrus.Fatalf("[mgo Ping] dialInfo: %+v | err: %s", dialInfo, err)
 	}
 
-	r.coll = session.DB(cfg.DBName).C(collName)
+	r.ChatsColl = session.DB(cfg.DBName).C("chats")
 }
 
 // ---> CHATS
 
 func (r *ChatRepository) GetAllChats(chats *[]model.Chat) {
-	if err := r.coll.Find(bson.M{}).All(chats); err != nil {
+	if err := r.ChatsColl.Find(bson.M{}).All(chats); err != nil {
 		logrus.Errorf("[GetAllChats] err: %s", err)
 		return
 	}
@@ -54,7 +58,7 @@ func (r *ChatRepository) SaveNewChat(chat *model.Chat) error {
 		return repository.ErrChatAlreadyExists
 	}
 
-	return r.coll.Insert(chat)
+	return r.ChatsColl.Insert(chat)
 }
 
 func (r *ChatRepository) RemoveChat(chatID int64) error {
@@ -63,11 +67,11 @@ func (r *ChatRepository) RemoveChat(chatID int64) error {
 		return repository.ErrChatDoesNotExist
 	}
 
-	return r.coll.RemoveId(chatID)
+	return r.ChatsColl.RemoveId(chatID)
 }
 
 func (r *ChatRepository) ChatExists(id int64) bool {
-	count, _ := r.coll.FindId(id).Count()
+	count, _ := r.ChatsColl.FindId(id).Count()
 	if count != 0 {
 		return true
 	}
@@ -82,7 +86,7 @@ func (r *ChatRepository) UserExists(chatID int64, username string) bool {
 		"publishers.username": username,
 	}
 
-	count, _ := r.coll.Find(query).Count()
+	count, _ := r.ChatsColl.Find(query).Count()
 	if count != 0 {
 		return true
 	}
@@ -107,7 +111,7 @@ func (r *ChatRepository) PushNewPublusher(chatID int64, pub *model.Publisher) er
 		},
 	}
 
-	err := r.coll.Update(findQuery, updateQuery)
+	err := r.ChatsColl.Update(findQuery, updateQuery)
 	return err
 }
 
@@ -128,7 +132,7 @@ func (r *ChatRepository) RemovePublisher(chatId int64, username string) error {
 		},
 	}
 
-	return r.coll.Update(findQuery, updateQuery)
+	return r.ChatsColl.Update(findQuery, updateQuery)
 }
 
 func (r *ChatRepository) GetAllPublishers(chatID int64, publishers *[]*model.Publisher) error {
@@ -138,7 +142,7 @@ func (r *ChatRepository) GetAllPublishers(chatID int64, publishers *[]*model.Pub
 
 	var chat model.Chat
 
-	if err := r.coll.FindId(chatID).One(&chat); err != nil {
+	if err := r.ChatsColl.FindId(chatID).One(&chat); err != nil {
 		return err
 	}
 
@@ -167,7 +171,7 @@ func (r *ChatRepository) PushPostedVideo(chatID int64, videoID string) error {
 		},
 	}
 
-	err := r.coll.Update(findQuery, updateQuery)
+	err := r.ChatsColl.Update(findQuery, updateQuery)
 	return err
 }
 
@@ -176,7 +180,7 @@ func (r *ChatRepository) PostedVideoExists(chatID int64, videoID string) bool {
 		"_id":           chatID,
 		"posted_videos": videoID,
 	}
-	count, _ := r.coll.Find(query).Count()
+	count, _ := r.ChatsColl.Find(query).Count()
 	if count != 0 {
 		return true
 	}

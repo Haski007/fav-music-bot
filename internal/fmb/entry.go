@@ -2,14 +2,6 @@ package fmb
 
 import (
 	"context"
-	"io/ioutil"
-	"log"
-	"os"
-
-	"github.com/Haski007/fav-music-bot/api"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/youtube/v3"
-
 	"github.com/Haski007/fav-music-bot/internal/fmb/resource"
 	"github.com/Haski007/fav-music-bot/pkg/factory"
 	"github.com/Haski007/fav-music-bot/pkg/run"
@@ -20,29 +12,29 @@ var ctx = context.Background()
 
 func Run(args *run.Args) error {
 
-	b, err := ioutil.ReadFile("secrets/client_secret.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
+	//b, err := ioutil.ReadFile("secrets/client_secret.json")
+	//if err != nil {
+	//	log.Fatalf("Unable to read client secret file: %v", err)
+	//}
+	//
+	//// If modifying these scopes, delete your previously saved credentials
+	//// at ~/.credentials/youtube-go-quickstart.json
+	//config, err := google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
+	//if err != nil {
+	//	logrus.Fatalf("Unable to parse client secret file to config: %v", err)
+	//}
+	//_ = api.GetClient(ctx, config)
+	//
+	//service, err := youtube.NewService(ctx)
+	//if err != nil {
+	//	logrus.Fatalf("[NewFMBService] err: %s", err)
+	//}
 
-	// If modifying these scopes, delete your previously saved credentials
-	// at ~/.credentials/youtube-go-quickstart.json
-	config, err := google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
-	if err != nil {
-		logrus.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	_ = api.GetClient(ctx, config)
+	//api.HandleError(err, "Error creating YouTube client")
 
-	service, err := youtube.NewService(ctx)
-	if err != nil {
-		logrus.Fatalf("[NewFMBService] err: %s", err)
-	}
+	//api.ChannelsListByUsername(service, "snippet,contentDetails,statistics", "GoogleDevelopers")
 
-	api.HandleError(err, "Error creating YouTube client")
-
-	api.ChannelsListByUsername(service, "snippet,contentDetails,statistics", "GoogleDevelopers")
-
-	os.Exit(-1)
+	//os.Exit(-1)
 
 	botService, err := resource.NewFMBService()
 	if err != nil {

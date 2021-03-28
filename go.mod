@@ -1,6 +1,6 @@
 module github.com/Haski007/fav-music-bot
 
-go 1.15
+go 1.16
 
 require (
 	github.com/Haski007/fav-videos v0.0.0-20201216131458-f4b89c7a4cf4
