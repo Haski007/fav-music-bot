@@ -15,13 +15,13 @@ import (
 )
 
 func (bot *FMBService) CheckNewMusic() {
-	//defer func() {
-	//	if recoveryErr := recover(); recoveryErr != nil {
-	//		message := fmt.Sprintf("Panic [CheckNewMusic] err: %s", recoveryErr)
-	//		bot.ReportToTheCreator(message)
-	//		logrus.Errorf(message)
-	//	}
-	//}()
+	defer func() {
+		if recoveryErr := recover(); recoveryErr != nil {
+			message := fmt.Sprintf("Panic [CheckNewMusic] err: %s", recoveryErr)
+			bot.ReportToTheCreator(message)
+			logrus.Errorf(message)
+		}
+	}()
 
 	var chats []model.Chat
 	bot.ChatRepository.GetAllChats(&chats)

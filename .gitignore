@@ -19,4 +19,4 @@ build/*
 # Secrets
 *.pem
 .env.json
-.client_id.json
+.youtube_client_secret.json
