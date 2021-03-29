@@ -18,4 +18,5 @@ build/*
 
 # Secrets
 *.pem
-*.env.json
+.env.json
+.client_id.json

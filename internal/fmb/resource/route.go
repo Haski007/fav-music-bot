@@ -29,12 +29,6 @@ func (bot *FMBService) HandleRoutes(updates tgbotapi.UpdatesChannel) {
 				go bot.commandRegNewChatHandler(update)
 			case command == "del_chat" || command == "del_chat"+"@"+botCreds.UserName:
 				go bot.commandDelChatHandler(update)
-			case command == "add_publisher" || command == "add_publisher"+"@"+botCreds.UserName:
-				go bot.commandAddPublisherHandler(update)
-			case command == "del_publisher" || command == "del_publisher"+"@"+botCreds.UserName:
-				go bot.commandDelPublisherHandler(update)
-			case command == "publishers" || command == "publishers"+"@"+botCreds.UserName:
-				go bot.commandPublishersHandler(update)
 			default:
 				bot.Reply(update.Message.Chat.ID, "Such command does not exist! "+emoji.NoEntry)
 			}

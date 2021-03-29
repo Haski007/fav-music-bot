@@ -1,17 +1,18 @@
 package resource
 
 import (
+	"github.com/Haski007/fav-music-bot/api"
 	"github.com/Haski007/fav-music-bot/internal/fmb/config"
 	"github.com/Haski007/fav-music-bot/internal/fmb/persistance/repository/mongodb"
-	"github.com/sirupsen/logrus"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/sirupsen/logrus"
 )
 
 type FMBService struct {
 	Bot       *tgbotapi.BotAPI
 	CreatorID int64
 
+	YoutubeService *api.YoutubeService
 	ChatRepository *mongodb.ChatRepository
 }
 
@@ -21,7 +22,9 @@ func NewFMBService() (*FMBService, error) {
 	bot := &FMBService{}
 
 	var cfg config.Config
-	cfg.Parse(config.ConfigFile)
+	if err := cfg.Parse(config.ConfigFile); err != nil {
+		logrus.Fatalf("[NewFMBService] cfg.Parse | err: %s", err)
+	}
 
 	bot.CreatorID = cfg.Bot.CreatorID
 
@@ -32,6 +35,8 @@ func NewFMBService() (*FMBService, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	bot.YoutubeService = api.NewYoutubeService()
 
 	bot.Bot.Debug = true
 

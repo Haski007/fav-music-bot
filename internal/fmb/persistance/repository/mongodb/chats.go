@@ -78,86 +78,9 @@ func (r *ChatRepository) ChatExists(id int64) bool {
 	return false
 }
 
-// ---> Users
+// ---> Music
 
-func (r *ChatRepository) UserExists(chatID int64, username string) bool {
-	query := bson.M{
-		"_id":                 chatID,
-		"publishers.username": username,
-	}
-
-	count, _ := r.ChatsColl.Find(query).Count()
-	if count != 0 {
-		return true
-	}
-	return false
-}
-
-func (r *ChatRepository) PushNewPublusher(chatID int64, pub *model.Publisher) error {
-	if !r.ChatExists(chatID) {
-		return repository.ErrChatDoesNotExist
-	}
-
-	if r.UserExists(chatID, pub.Username) {
-		return repository.ErrUserAlreadyExists
-	}
-
-	findQuery := bson.M{
-		"_id": chatID,
-	}
-	updateQuery := bson.M{
-		"$push": bson.M{
-			"publishers": pub,
-		},
-	}
-
-	err := r.ChatsColl.Update(findQuery, updateQuery)
-	return err
-}
-
-func (r *ChatRepository) RemovePublisher(chatId int64, username string) error {
-
-	if !r.UserExists(chatId, username) {
-		return repository.ErrUserDoesNotExist
-	}
-
-	findQuery := bson.M{
-		"_id": chatId,
-	}
-	updateQuery := bson.M{
-		"$pull": bson.M{
-			"publishers": bson.M{
-				"username": username,
-			},
-		},
-	}
-
-	return r.ChatsColl.Update(findQuery, updateQuery)
-}
-
-func (r *ChatRepository) GetAllPublishers(chatID int64, publishers *[]*model.Publisher) error {
-	if !r.ChatExists(chatID) {
-		return repository.ErrChatDoesNotExist
-	}
-
-	var chat model.Chat
-
-	if err := r.ChatsColl.FindId(chatID).One(&chat); err != nil {
-		return err
-	}
-
-	pubs := make([]*model.Publisher, len(chat.Publishers))
-	for i, p := range chat.Publishers {
-		pubs[i] = p
-	}
-
-	*publishers = pubs
-	return nil
-}
-
-// ---> Videos
-
-func (r *ChatRepository) PushPostedVideo(chatID int64, videoID string) error {
+func (r *ChatRepository) PushPostedMusic(chatID int64, musicID string) error {
 	if !r.ChatExists(chatID) {
 		return repository.ErrChatDoesNotExist
 	}
@@ -167,7 +90,7 @@ func (r *ChatRepository) PushPostedVideo(chatID int64, videoID string) error {
 	}
 	updateQuery := bson.M{
 		"$push": bson.M{
-			"posted_videos": videoID,
+			"posted_music": musicID,
 		},
 	}
 
@@ -175,10 +98,10 @@ func (r *ChatRepository) PushPostedVideo(chatID int64, videoID string) error {
 	return err
 }
 
-func (r *ChatRepository) PostedVideoExists(chatID int64, videoID string) bool {
+func (r *ChatRepository) PostedMusicExists(chatID int64, musicID string) bool {
 	query := bson.M{
-		"_id":           chatID,
-		"posted_videos": videoID,
+		"_id":          chatID,
+		"posted_music": musicID,
 	}
 	count, _ := r.ChatsColl.Find(query).Count()
 	if count != 0 {

@@ -41,7 +41,7 @@ func StartBot(bot *resource.FMBService) {
 
 func tiktokLoop(bot *resource.FMBService) {
 	for {
-		bot.CheckNewVideos()
+		bot.CheckNewMusic()
 		fmt.Println("Loop passed!")
 		time.Sleep(5 * time.Second)
 	}
