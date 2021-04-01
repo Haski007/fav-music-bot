@@ -7,15 +7,15 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-func DecodeYoutubeVideos(videos []*youtube.PlaylistItem) (music []*model.Music) {
+func DecodeYoutubeVideos(items []*youtube.PlaylistItem) (music []*model.Music) {
 	music = make([]*model.Music, len(videos))
-	for i, video := range videos {
+	for i, item := range items {
 		music[i] = &model.Music{
-			ID:     video.Id,
-			Title:  video.Snippet.Title,
-			Author: video.Snippet.VideoOwnerChannelTitle,
-			Image:  video.Snippet.Thumbnails.Maxres.Url,
-			URL:    fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.Id),
+			ID:     item.Id,
+			Title:  item.Snippet.Title,
+			Author: item.Snippet.VideoOwnerChannelTitle,
+			Image:  item.Snippet.Thumbnails.Maxres.Url,
+			URL:    fmt.Sprintf("https://www.youtube.com/watch?v=%s", item.Snippet.ResourceId.VideoId),
 		}
 	}
 	return music
