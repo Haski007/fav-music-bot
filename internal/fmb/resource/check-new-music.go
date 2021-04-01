@@ -27,7 +27,11 @@ func (bot *FMBService) CheckNewMusic() {
 	bot.ChatRepository.GetAllChats(&chats)
 
 	for _, chat := range chats {
-		likes, err := bot.YoutubeService.GetLikedIDs(3)
+		if chat.Playlist == nil {
+			continue
+		}
+
+		likes, err := bot.YoutubeService.GetLikedIDs(3, chat.Playlist.ID)
 		if err != nil {
 			logrus.Printf("[YoutubeService.GetLikedIDs] err: %s", err)
 			return
@@ -44,17 +48,13 @@ func (bot *FMBService) CheckNewMusic() {
 
 			var message string
 
-			message += fmt.Sprintf("%s *Liked music* %s\n", emoji.Heart, emoji.Heart)
+			message += fmt.Sprintf("%s Added to *%s* %s\n", emoji.Heart, chat.Playlist.Title, emoji.Heart)
 			message += fmt.Sprintf(
 				"Title: *%s*\n"+
 					"Author: *%s*\n",
 				m.Title,
 				m.Author)
 
-			//imgURL, err := url.Parse(m.Image)
-			//if err != nil {
-			//	logrus.Errorf("[CheckNewMusic] url.Parse | err: %s", err)
-			//}
 			resp := tgbotapi.NewPhotoUpload(chat.ID, nil)
 			resp.FileID = m.Image
 			resp.UseExisting = true

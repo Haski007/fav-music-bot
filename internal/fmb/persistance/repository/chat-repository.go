@@ -8,6 +8,8 @@ var (
 
 	ErrUserAlreadyExists = errors.New("USER_ALREADY_EXISTS")
 	ErrUserDoesNotExist  = errors.New("USER_DOES_NOT_EXIST")
+
+	ErrPlaylistAlreadyExists = errors.New("PLAYLIST_ALREADY_EXISTS")
 )
 
 type ChatRepository interface {

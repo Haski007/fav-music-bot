@@ -1,10 +1,10 @@
 package model
 
 type Chat struct {
-	ID           int64        `json:"_id" bson:"_id,omitempty"`
-	Name         string       `json:"name" bson:"name"`
-	Publishers   []*Publisher `json:"publishers" bson:"publishers"`
-	PostedVideos []string     `json:"posted_videos" bson:"posted_videos"`
+	ID           int64     `json:"_id" bson:"_id,omitempty"`
+	Name         string    `json:"name" bson:"name"`
+	Playlist     *Playlist `json:"playlist" bson:"playlist"`
+	PostedVideos []string  `json:"posted_videos" bson:"posted_videos"`
 }
 
 type Publisher struct {
@@ -23,7 +23,6 @@ func NewChat(id int64, name string) *Chat {
 	return &Chat{
 		ID:           id,
 		Name:         name,
-		Publishers:   nil,
 		PostedVideos: nil,
 	}
 }

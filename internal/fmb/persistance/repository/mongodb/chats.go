@@ -78,6 +78,46 @@ func (r *ChatRepository) ChatExists(id int64) bool {
 	return false
 }
 
+// ---> Playlist
+
+func (r *ChatRepository) AddPlaylist(chatID int64, playlist *model.Playlist) error {
+	if r.PlaylistExists(chatID) {
+		return repository.ErrPlaylistAlreadyExists
+	}
+
+	findQuery := bson.M{
+		"_id": chatID,
+	}
+	updateQuery := bson.M{
+		"$set": bson.M{"playlist": playlist},
+	}
+
+	return r.ChatsColl.Update(findQuery, updateQuery)
+}
+
+func (r *ChatRepository) ClearPlaylist(chatID int64) error {
+	findQuery := bson.M{
+		"_id": chatID,
+	}
+	updateQuery := bson.M{
+		"$set": model.Playlist{},
+	}
+
+	return r.ChatsColl.Update(findQuery, updateQuery)
+}
+
+func (r *ChatRepository) PlaylistExists(chatID int64) bool {
+	query := bson.M{
+		"_id":         chatID,
+		"playlist.id": "",
+	}
+
+	if count, _ := r.ChatsColl.Find(query).Count(); count != 0 {
+		return true
+	}
+	return false
+}
+
 // ---> Music
 
 func (r *ChatRepository) PushPostedMusic(chatID int64, musicID string) error {

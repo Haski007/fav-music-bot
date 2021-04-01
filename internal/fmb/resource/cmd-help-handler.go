@@ -5,14 +5,17 @@ import (
 )
 
 func (bot *FMBService) commandHelpHandler(update tgbotapi.Update) {
-	bot.Reply(
-		update.Message.Chat.ID,
-		"Here is bot to subscribe on someone's liked videos in TikTok\n"+
-			"You can use such commands:\n"+
-			" - /help - for help\n"+
-			" - /reg_chat - for adding current chat to DataBase\n"+
-			" - /del_chat - for removing chat\n"+
-			" - /add_publisher [tiktok username] - to add new publisher\n"+
-			" - /del_publisher [tiktok username] - to remove publisher\n"+
-			" - /publishers - to get list of all publishers\n")
+
+	message := "Here is bot to subscribe on someone's playlist in Youtube\n" +
+		"You can use such commands:\n" +
+		" - /help - for help\n" +
+		" - /reg_chat - for adding current chat to DataBase\n" +
+		" - /del_chat - for removing chat\n\n" +
+		"How to subscribe on playlist:\n" +
+		"1) Open page in browser with playlist you want to subscribe\n" +
+		"2) Copy playlist id an showed on image below\n" +
+		"3) Use command in chat with bot\n" +
+		"/reg_playlist [paste id here]"
+	resp := tgbotapi.NewPhotoUpload(update.Message.Chat.ID,
+		"")
 }

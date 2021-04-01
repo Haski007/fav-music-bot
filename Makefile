@@ -33,3 +33,12 @@ build-linux:
 			-ldflags "-X main.Version=$(APP_VERSION)" \
 			$(CMD_PATH)*.go
 
+build-arm:
+	CGO_ENABLED=0 \
+	GOARCH=arm \
+		go build \
+			-installsuffix cgo \
+			-o $(BINARY_PATH)$(BINARY_NAME) \
+			-ldflags "-X main.Version=$(APP_VERSION)" \
+			$(CMD_PATH)*.go
+
