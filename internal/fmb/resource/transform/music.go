@@ -8,7 +8,7 @@ import (
 )
 
 func DecodeYoutubeVideos(items []*youtube.PlaylistItem) (music []*model.Music) {
-	music = make([]*model.Music, len(videos))
+	music = make([]*model.Music, len(items))
 	for i, item := range items {
 		music[i] = &model.Music{
 			ID:     item.Id,
